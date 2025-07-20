@@ -1,6 +1,6 @@
 ## Load the UI
 ```lua
-local MythixzUILib = loadstring(game:HttpGet("https://yourpastebinlink.com/raw"))()
+local MythixzUILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/YourRealjohn/UI-LIBRARY/refs/heads/main/Script%20Loader%20Final"))()
 ```
 
 ## Window
