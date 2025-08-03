@@ -1,0 +1,169 @@
+-- MyUILibWithTabs.lua (With Icons Built-in)
+local MyUILib = {}
+
+-- Embedded Icons
+local Icons = loadstring(game:HttpGet("https://raw.githubusercontent.com/Darkmoonxhubscript/DarkLibV4/refs/heads/main/Icons.luau"))()
+
+local function Create(class, props)
+	local inst = Instance.new(class)
+	for k, v in pairs(props) do
+		inst[k] = v
+	end
+	return inst
+end
+
+function MyUILib:CreateWindow(config)
+	local ScreenGui = Create("ScreenGui", {
+		Name = config.Name or "MyUILibWithTabs",
+		ResetOnSpawn = false,
+		Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	})
+
+	local Main = Create("Frame", {
+		Size = UDim2.new(0, 500, 0, 350),
+		Position = UDim2.new(0.5, -250, 0.5, -175),
+		BackgroundColor3 = Color3.fromRGB(30, 30, 30),
+		BorderSizePixel = 0,
+		Parent = ScreenGui
+	})
+
+	local TabBar = Create("Frame", {
+		Size = UDim2.new(0, 120, 1, 0),
+		BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+		BorderSizePixel = 0,
+		Parent = Main
+	})
+
+	local TabButtonsLayout = Create("UIListLayout", {
+		Padding = UDim.new(0, 6),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = TabBar
+	})
+
+	local TabContainer = Create("Frame", {
+		Position = UDim2.new(0, 120, 0, 0),
+		Size = UDim2.new(1, -120, 1, 0),
+		BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+		BorderSizePixel = 0,
+		Parent = Main
+	})
+
+	local Tabs = {}
+
+	function MyUILib:CreateTab(config)
+		local Name = config.Name or "Tab"
+		local Icon = Icons[config.Icon] or ""
+
+		local TabBtn = Create("TextButton", {
+			Size = UDim2.new(1, 0, 0, 40),
+			BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+			Text = "",
+			Parent = TabBar
+		})
+
+		local IconImage = Create("ImageLabel", {
+			Image = Icon,
+			Size = UDim2.new(0, 24, 0, 24),
+			Position = UDim2.new(0, 8, 0.5, -12),
+			BackgroundTransparency = 1,
+			Parent = TabBtn
+		})
+
+		local Label = Create("TextLabel", {
+			Text = Name,
+			Font = Enum.Font.Gotham,
+			TextSize = 14,
+			TextColor3 = Color3.fromRGB(255, 255, 255),
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, -40, 1, 0),
+			Position = UDim2.new(0, 40, 0, 0),
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Parent = TabBtn
+		})
+
+		local Content = Create("ScrollingFrame", {
+			Visible = false,
+			Size = UDim2.new(1, 0, 1, 0),
+			CanvasSize = UDim2.new(0, 0, 0, 0),
+			ScrollBarThickness = 6,
+			BackgroundTransparency = 1,
+			Parent = TabContainer
+		})
+
+		local Layout = Create("UIListLayout", {
+			Padding = UDim.new(0, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			Parent = Content
+		})
+
+		table.insert(Tabs, {Btn = TabBtn, Page = Content})
+
+		TabBtn.MouseButton1Click:Connect(function()
+			for _, t in pairs(Tabs) do
+				t.Page.Visible = false
+				t.Btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+			end
+			Content.Visible = true
+			TabBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+		end)
+
+		if #Tabs == 1 then
+			TabBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+			Content.Visible = true
+		end
+
+		return Content
+	end
+
+	function MyUILib:AddButton(tab, config)
+		local Btn = Create("TextButton", {
+			Text = config.Name or "Button",
+			Size = UDim2.new(1, -10, 0, 30),
+			BackgroundColor3 = Color3.fromRGB(60, 60, 60),
+			TextColor3 = Color3.fromRGB(255, 255, 255),
+			Font = Enum.Font.Gotham,
+			TextSize = 14,
+			Parent = tab
+		})
+
+		Btn.MouseButton1Click:Connect(function()
+			if config.Callback then pcall(config.Callback) end
+		end)
+	end
+
+	function MyUILib:AddToggle(tab, config)
+		local State = false
+		local Btn = Create("TextButton", {
+			Text = "[ OFF ] " .. (config.Name or "Toggle"),
+			Size = UDim2.new(1, -10, 0, 30),
+			BackgroundColor3 = Color3.fromRGB(60, 60, 60),
+			TextColor3 = Color3.fromRGB(255, 255, 255),
+			Font = Enum.Font.Gotham,
+			TextSize = 14,
+			Parent = tab
+		})
+
+		Btn.MouseButton1Click:Connect(function()
+			State = not State
+			Btn.Text = (State and "[ ON ] " or "[ OFF ] ") .. config.Name
+			if config.Callback then pcall(config.Callback, State) end
+		end)
+	end
+
+	function MyUILib:AddLabel(tab, config)
+		Create("TextLabel", {
+			Text = config.Name or "Label",
+			Size = UDim2.new(1, -10, 0, 25),
+			BackgroundTransparency = 1,
+			TextColor3 = Color3.fromRGB(255, 255, 255),
+			Font = Enum.Font.Gotham,
+			TextSize = 14,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Parent = tab
+		})
+	end
+
+	return self
+end
+
+return MyUILib
